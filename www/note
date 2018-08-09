@@ -1,0 +1,19 @@
+
+aiphttp
+
+
+1. 通过web.Application()得到一个Application对象app
+2. app.make_handler()返回一个Server对象
+3. 调用Server()后，会返回一个RequestHandler()对象
+4. 当接收到数据后，会调用RequestHandler对象的start()方法
+5. start()方法中会调用self._request_handler(request)生成响应对象
+6. self._request_handler即Server对象的request_handler属性
+7. 而Server对象的request_handler属性又是Application对象中的_handle方法
+8. _handle()方法中即是返回响应的数据（resp = await handler(request)），通过handler = match_info.handler得到回调的handler方法引用
+9. 而match_info是通过self._router.resolve()得到
+10. self._router是UrlDispatcher()对象，它的resolve()方法中调用resource.resolve(request)
+11. resource是通过 app.router.add_route(method, path, RequesetHandler(app, fn))得到的一个Resource子类
+12. Resource类中的resolve()方法得到的是一个UrlMappingMatchInfo对象，所以9中的match_info是UrlMappingMatchInfo的实例
+13. UrlMappingMatchInfo中的handler返回的是self._route.handler，其中self._route是个ResourceRoute对象
+14. ResourceRoute对象就是在app.router.add_route时候创建的，他的handler即RequesetHandler(app, fn)
+15. 所以最终8中得到handler，就是我们自定义的RequesetHandler
